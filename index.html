@@ -13,129 +13,132 @@
     <input type="file" id="fileSelect" multiple />
     <button id="applyFunction">Aplicar función</button>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const $mainContainer = document.querySelector('#container');
-      const $fileSelect = document.querySelector('#fileSelect');
-      const $applyFunctionButton = document.querySelector('#applyFunction');
-      const directoryName = 'pictures';
-      const opfsRoot = await navigator.storage.getDirectory();
-      const picturesFolder = await opfsRoot.getDirectoryHandle(directoryName, {
-        create: true,
-      });
-
-      window.AlphaFoldXploR_read = async (zfile) => {
-        // Implementa la lógica necesaria para procesar el archivo aquí
-        // Puedes adaptar la función según tu lógica y necesidades
-        console.log('Procesando archivo...', zfile);
-      };
-
-      const removeFile = async (fileName, folder) => {
-        try {
-          await folder.removeEntry(fileName);
-        } catch (error) {
-          console.error('Error al eliminar el archivo:', error);
-        }
-      };
-
-      const storeFile = async (file, folder) => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = async () => {
-            const fileName = file.name;
-            const fileHandle = await folder.getFileHandle(fileName, {
-              create: true,
-            });
-            const writable = await fileHandle.createWritable();
-            await writable.write(reader.result);
-            await writable.close();
-            resolve();
-          };
-          reader.onerror = (error) => {
-            reject(error);
-          };
-          reader.readAsArrayBuffer(file);
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const $mainContainer = document.querySelector('#container');
+        const $fileSelect = document.querySelector('#fileSelect');
+        const $applyFunctionButton = document.querySelector('#applyFunction');
+        const directoryName = 'pictures';
+        const opfsRoot = await navigator.storage.getDirectory();
+        const picturesFolder = await opfsRoot.getDirectoryHandle(directoryName, {
+          create: true,
         });
-      };
 
-      const renderFiles = async (folder) => {
-        while ($mainContainer.firstChild) {
-          $mainContainer.removeChild($mainContainer.firstChild);
+        window.AlphaFoldXploR_read = async (zfile) => {
+          // Implementa la lógica necesaria para procesar el archivo aquí
+          // Puedes adaptar la función según tu lógica y necesidades
+          console.log('Procesando archivo...', zfile);
+        };
+
+        const removeFile = async (fileName, folder) => {
+          try {
+            await folder.removeEntry(fileName);
+          } catch (error) {
+            console.error('Error al eliminar el archivo:', error);
+          }
+        };
+
+        const storeFile = async (file, folder) => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = async () => {
+              const fileName = file.name;
+              const fileHandle = await folder.getFileHandle(fileName, {
+                create: true,
+              });
+              const writable = await fileHandle.createWritable();
+              await writable.write(reader.result);
+              await writable.close();
+              resolve();
+            };
+            reader.onerror = (error) => {
+              reject(error);
+            };
+            reader.readAsArrayBuffer(file);
+          });
+        };
+
+        const renderFiles = async (folder) => {
+          while ($mainContainer.firstChild) {
+            $mainContainer.removeChild($mainContainer.firstChild);
+          }
+
+          for await (let [name, handle] of folder) {
+            const container = Object.assign(document.createElement('div'));
+            const anchorFileName = Object.assign(document.createElement('a'), {
+              textContent: name,
+              href: 'javascript:void(0)',
+              classList: ['file'],
+            });
+            const anchorRemove = Object.assign(document.createElement('a'), {
+              textContent: 'Eliminar',
+              href: 'javascript:void(0)',
+              classList: ['remove'],
+            });
+
+            anchorFileName.addEventListener('click', () => {
+              // downloadFile(name, folder);
+              // La función downloadFile no está definida, así que la eliminamos
+              console.log('Descargar archivo', name);
+            });
+
+            anchorRemove.addEventListener('click', async () => {
+              await removeFile(name, folder);
+              await renderFiles(folder);
+            });
+
+            container.appendChild(anchorFileName);
+            container.appendChild(anchorRemove);
+            $mainContainer.append(container);
+          }
+        };
+
+        $fileSelect.addEventListener('change', async () => {
+          const files = $fileSelect.files;
+          for (const file of files) {
+            await storeFile(file, picturesFolder);
+          }
+          $fileSelect.value = '';
+          renderFiles(picturesFolder);
+        });
+
+        $applyFunctionButton.addEventListener('click', async () => {
+          // Obtén la lista de archivos almacenados en la carpeta pictures
+          const filesList = await picturesFolder.keys();
+
+          // Llama a la función asincrónica processFiles para manejar la lógica de procesamiento
+          await processFiles(filesList, picturesFolder);
+
+          // Puedes agregar más lógica aquí después de procesar todos los archivos
+          console.log('Aplicar función completada...');
+        });
+
+        async function processFiles(filesList, folder) {
+          // Lógica de procesamiento de archivos aquí
+          for (const fileName of filesList) {
+            const fileHandle = await folder.getFileHandle(fileName);
+            const file = await fileHandle.getFile();
+            const fileBuffer = await file.arrayBuffer();
+            await window.AlphaFoldXploR_read(fileBuffer);
+          }
         }
 
-        for await (let [name, handle] of folder) {
-          const container = Object.assign(document.createElement('div'));
-          const anchorFileName = Object.assign(document.createElement('a'), {
-            textContent: name,
-            href: 'javascript:void(0)',
-            classList: ['file'],
-          });
-          const anchorRemove = Object.assign(document.createElement('a'), {
-            textContent: 'Eliminar',
-            href: 'javascript:void(0)',
-            classList: ['remove'],
-          });
-
-          anchorFileName.addEventListener('click', () => {
-            // downloadFile(name, folder);
-            // La función downloadFile no está definida, así que la eliminamos
-            console.log('Descargar archivo', name);
-          });
-
-          anchorRemove.addEventListener('click', async () => {
-            await removeFile(name, folder);
-            await renderFiles(folder);
-          });
-
-          container.appendChild(anchorFileName);
-          container.appendChild(anchorRemove);
-          $mainContainer.append(container);
+        function dragOverHandler(event) {
+          event.preventDefault();
+          $mainContainer.classList.add('dragover');
         }
-      };
 
-      $fileSelect.addEventListener('change', async () => {
-        const files = $fileSelect.files;
-        for (const file of files) {
-          await storeFile(file, picturesFolder);
+        async function dropHandler(event) {
+          event.preventDefault();
+          $mainContainer.classList.remove('dragover');
+          const files = event.dataTransfer.files;
+          for (const file of files) {
+            await storeFile(file, picturesFolder);
+          }
+          renderFiles(picturesFolder);
         }
-        $fileSelect.value = '';
-        renderFiles(picturesFolder);
       });
-
-      $applyFunctionButton.addEventListener('click', async () => {
-        // Obtén la lista de archivos almacenados en la carpeta pictures
-        const filesList = await picturesFolder.keys();
-
-        // Llama a tu función AlphaFoldXploR_read para procesar cada archivo
-        for (const fileName of filesList) {
-          const fileHandle = await picturesFolder.getFileHandle(fileName);
-          const file = await fileHandle.getFile();
-          const fileBuffer = await file.arrayBuffer();
-
-          // Llama a tu función con el contenido del archivo
-          await window.AlphaFoldXploR_read(fileBuffer);
-        }
-
-        // Puedes agregar más lógica aquí después de procesar todos los archivos
-        console.log('Aplicar función completada...');
-      });
-
-      function dragOverHandler(event) {
-        event.preventDefault();
-        $mainContainer.classList.add('dragover');
-      }
-
-      async function dropHandler(event) {
-        event.preventDefault();
-        $mainContainer.classList.remove('dragover');
-        const files = event.dataTransfer.files;
-        for (const file of files) {
-          await storeFile(file, picturesFolder);
-        }
-        renderFiles(picturesFolder);
-      }
-    });
-  </script>
+    </script>
     <style>
       #container {
         border: 2px dashed #ccc;
