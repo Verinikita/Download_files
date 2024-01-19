@@ -7,7 +7,7 @@
   </head>
 
   <body>
-    <div id="container"></div>
+    <div id="container" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);"></div>
     <hr />
     <h2>Agregar archivo</h2>
     <input type="file" id="fileSelect" multiple />
@@ -158,6 +158,22 @@
           console.log('Aplicar función completada...');
         });
       });
+
+      function dragOverHandler(event) {
+        event.preventDefault();
+        $mainContainer.classList.add('drag-over');
+      }
+
+      function dropHandler(event) {
+        event.preventDefault();
+        $mainContainer.classList.remove('drag-over');
+
+        const files = event.dataTransfer.files;
+        for (const file of files) {
+          storeFile(file, picturesFolder);
+        }
+        renderFiles(picturesFolder);
+      }
     </script>
     <style>
       a {
@@ -173,6 +189,17 @@
         color: #dc2626;
         font-size: 0.8rem;
         margin-left: 0.4rem;
+      }
+
+      #container {
+        border: 2px dashed #aaa;
+        padding: 20px;
+        margin: 20px;
+        cursor: pointer;
+      }
+
+      #container.drag-over {
+        background-color: #eee;
       }
     </style>
   </body>
