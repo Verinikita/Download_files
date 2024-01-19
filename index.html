@@ -11,15 +11,24 @@
     <hr />
     <h2>Agregar archivo</h2>
     <input type="file" id="fileSelect" multiple />
-    <button id="applyFunction">Aplicar Función</button>
+    <button id="applyFunction">Aplicar función</button>
+
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
         const $mainContainer = document.querySelector('#container');
         const $fileSelect = document.querySelector('#fileSelect');
-        const $applyFunctionButton = document.querySelector('#applyFunction'); // Agregado el botón aquí
+        const $applyFunctionButton = document.querySelector('#applyFunction');
         const directoryName = 'pictures';
+        const outputDirectoryName1 = 'archivos_json';
+        const outputDirectoryName2 = 'archivos_pdb';
         const opfsRoot = await navigator.storage.getDirectory();
         const picturesFolder = await opfsRoot.getDirectoryHandle(directoryName, {
+          create: true,
+        });
+        const outputFolder1 = await opfsRoot.getDirectoryHandle(outputDirectoryName1, {
+          create: true,
+        });
+        const outputFolder2 = await opfsRoot.getDirectoryHandle(outputDirectoryName2, {
           create: true,
         });
 
@@ -92,24 +101,57 @@
           $fileSelect.value = '';
           renderFiles(picturesFolder);
         });
-
         renderFiles(picturesFolder);
-      });
 
-      document.addEventListener('DOMContentLoaded', () => {
-        const $applyFunctionButton = document.querySelector('#applyFunction');
+        // Función AlphaFoldXploR_read
+        window.AlphaFoldXploR_read = async (folder) => {
+          for await (let [name, handle] of folder) {
+            if (name.endsWith('.json')) {
+              const content = await readFileContents(handle);
+              console.log(`Contenido de ${name}: ${content}`);
+
+              // Almacena el archivo procesado en la carpeta de salida 1
+              await storeProcessedFile(content, outputFolder1, name);
+            }
+
+            if (name.endsWith('.pdb')) {
+              const content = await readFileContents(handle);
+              console.log(`Contenido de ${name}: ${content}`);
+
+              // Almacena el archivo procesado en la carpeta de salida 2
+              await storeProcessedFile(content, outputFolder2, name);
+            }
+          }
+        };
+
+        const readFileContents = async (fileHandle) => {
+          const file = await fileHandle.getFile();
+          const content = await file.text();
+          return content;
+        };
+
+        const storeProcessedFile = async (content, outputFolder, originalFileName) => {
+          const processedFileName = `processed_${originalFileName}`;
+          const fileHandle = await outputFolder.getFileHandle(processedFileName, {
+            create: true,
+          });
+          const writable = await fileHandle.createWritable();
+          await writable.write(content);
+          await writable.close();
+        };
+
         $applyFunctionButton.addEventListener('click', async () => {
           // Obtén la lista de archivos almacenados en la carpeta pictures
           const filesList = await picturesFolder.keys();
 
           // Llama a tu función AlphaFoldXploR_read para procesar cada archivo
-          for (const fileName of filesList) {
-            const fileHandle = await picturesFolder.getFileHandle(fileName);
-            const file = await fileHandle.getFile();
-            const fileBuffer = await file.arrayBuffer();
+          for (const fileNamePromise of filesList) {
+            // Espera a que la Promise de fileName se resuelva y obtén el valor
+            const fileName = await fileNamePromise;
 
+            const fileHandle = await picturesFolder.getFileHandle(fileName);
             // Llama a tu función con el contenido del archivo
-            await AlphaFoldXploR_read(fileBuffer);
+            await AlphaFoldXploR_read(fileHandle);
           }
 
           // Puedes agregar más lógica aquí después de procesar todos los archivos
