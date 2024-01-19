@@ -15,6 +15,7 @@
       document.addEventListener('DOMContentLoaded', async () => {
         const $mainContainer = document.querySelector('#container');
         const $fileSelect = document.querySelector('#fileSelect');
+        const $applyFunctionButton = document.querySelector('#applyFunction');
         const directoryName = 'pictures';
         const opfsRoot = await navigator.storage.getDirectory();
         const picturesFolder = await opfsRoot.getDirectoryHandle(directoryName, {
