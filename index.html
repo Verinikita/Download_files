@@ -31,25 +31,7 @@
         }
       };
 
-      const removeFile = async (fileName, folder) => {
-        if ('remove' in folder) {
-          // Usar el método remove si está disponible
-          try {
-            await folder.remove(fileName);
-          } catch (error) {
-            console.error('Error al eliminar el archivo:', error);
-          }
-        } else if ('removeEntry' in folder) {
-          // Usar removeEntry si remove no está disponible
-          try {
-            await folder.removeEntry(fileName);
-          } catch (error) {
-            console.error('Error al eliminar el archivo:', error);
-          }
-        } else {
-          console.error('Tu navegador no admite la eliminación de archivos');
-        }
-      };
+
 
         const storeFile = async (file, folder) => {
           return new Promise((resolve, reject) => {
