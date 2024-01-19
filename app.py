@@ -1,10 +1,8 @@
 from flask import Flask, render_template, request, flash, redirect, url_for
 from werkzeug.utils import secure_filename
-from zipfile import ZipFile
 import os
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = './downlo'
 
 ALLOWED_EXTENSIONS = {'zip'}
 
@@ -15,13 +13,15 @@ def AlphaFoldXploR_read(folder):
     for name, handle in folder:
         if name.endswith(".json"):
             with handle as file:
-                lista1 = file.read_text()
+                content = file.read_text()
                 # Procesa el contenido del archivo JSON según tus necesidades
+                print(f'Contenido de {name}: {content}')
 
         if name.endswith(".pdb"):
             with handle as file:
-                lista2 = file.read_text()
+                content = file.read_text()
                 # Procesa el contenido del archivo PDB según tus necesidades
+                print(f'Contenido de {name}: {content}')
 
 @app.route('/procesar_zip', methods=['POST'])
 def procesar_zip():
