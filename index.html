@@ -23,7 +23,13 @@
       const picturesFolder = await opfsRoot.getDirectoryHandle(directoryName, {
         create: true,
       });
-  
+
+      window.AlphaFoldXploR_read = async (zfile) => {
+        // Implementa la lógica necesaria para procesar el archivo aquí
+        // Puedes adaptar la función según tu lógica y necesidades
+        console.log('Procesando archivo...', zfile);
+      };
+
       const removeFile = async (fileName, folder) => {
         try {
           await folder.removeEntry(fileName);
@@ -31,7 +37,7 @@
           console.error('Error al eliminar el archivo:', error);
         }
       };
-  
+
       const storeFile = async (file, folder) => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -51,12 +57,12 @@
           reader.readAsArrayBuffer(file);
         });
       };
-  
+
       const renderFiles = async (folder) => {
         while ($mainContainer.firstChild) {
           $mainContainer.removeChild($mainContainer.firstChild);
         }
-  
+
         for await (let [name, handle] of folder) {
           const container = Object.assign(document.createElement('div'));
           const anchorFileName = Object.assign(document.createElement('a'), {
@@ -69,22 +75,22 @@
             href: 'javascript:void(0)',
             classList: ['remove'],
           });
-  
+
           anchorFileName.addEventListener('click', () => {
             downloadFile(name, folder);
           });
-  
+
           anchorRemove.addEventListener('click', async () => {
             await removeFile(name, folder);
             await renderFiles(folder);
           });
-  
+
           container.appendChild(anchorFileName);
           container.appendChild(anchorRemove);
           $mainContainer.append(container);
         }
       };
-  
+
       $fileSelect.addEventListener('change', async () => {
         const files = $fileSelect.files;
         for (const file of files) {
@@ -93,30 +99,30 @@
         $fileSelect.value = '';
         renderFiles(picturesFolder);
       });
-  
+
       $applyFunctionButton.addEventListener('click', async () => {
         // Obtén la lista de archivos almacenados en la carpeta pictures
         const filesList = await picturesFolder.keys();
-  
+
         // Llama a tu función AlphaFoldXploR_read para procesar cada archivo
         for (const fileName of filesList) {
           const fileHandle = await picturesFolder.getFileHandle(fileName);
           const file = await fileHandle.getFile();
           const fileBuffer = await file.arrayBuffer();
-  
+
           // Llama a tu función con el contenido del archivo
           await AlphaFoldXploR_read(fileBuffer);
         }
-  
+
         // Puedes agregar más lógica aquí después de procesar todos los archivos
         console.log('Aplicar función completada...');
       });
-  
+
       function dragOverHandler(event) {
         event.preventDefault();
         $mainContainer.classList.add('dragover');
       }
-  
+
       function dropHandler(event) {
         event.preventDefault();
         $mainContainer.classList.remove('dragover');
