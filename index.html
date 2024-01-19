@@ -94,7 +94,10 @@
         });
 
         renderFiles(picturesFolder);
+      });
 
+      document.addEventListener('DOMContentLoaded', () => {
+        const $applyFunctionButton = document.querySelector('#applyFunction');
         $applyFunctionButton.addEventListener('click', async () => {
           // Obtén la lista de archivos almacenados en la carpeta pictures
           const filesList = await picturesFolder.keys();
