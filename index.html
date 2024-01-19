@@ -96,6 +96,23 @@
         });
         renderFiles(picturesFolder);
       });
+      $applyFunctionButton.addEventListener('click', async () => {
+          // Obtén la lista de archivos almacenados en la carpeta pictures
+          const filesList = await picturesFolder.keys();
+      
+          // Llama a tu función AlphaFoldXploR_read para procesar cada archivo
+          for (const fileName of filesList) {
+              const fileHandle = await picturesFolder.getFileHandle(fileName);
+              const file = await fileHandle.getFile();
+              const fileBuffer = await file.arrayBuffer();
+              
+              // Llama a tu función con el contenido del archivo
+              await AlphaFoldXploR_read(fileBuffer);
+          }
+      
+          // Puedes agregar más lógica aquí después de procesar todos los archivos
+          console.log('Aplicar función completada...');
+      });
     </script>
     <style>
       a {
