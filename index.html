@@ -14,7 +14,7 @@
     <button id="applyFunction">Aplicar función</button>
 
     <script>
-      document.addEventListener('DOMContentLoaded', async () => {
+      (async () => {
         const $mainContainer = document.querySelector('#container');
         const $fileSelect = document.querySelector('#fileSelect');
         const $applyFunctionButton = document.querySelector('#applyFunction');
@@ -147,7 +147,7 @@
           }
           renderFiles(picturesFolder);
         }
-      });
+      })();
     </script>
     <style>
       #container {
