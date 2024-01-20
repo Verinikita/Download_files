@@ -99,6 +99,9 @@
             await storeFile(file, picturesFolder);
           }
           $fileSelect.value = '';
+        
+          // Obtén la lista de archivos como un array antes de llamar a renderFiles
+          const filesList = Array.from(await picturesFolder.keys());
           renderFiles(picturesFolder);
         });
 
