@@ -7,9 +7,7 @@
   </head>
 
   <body>
-    <div id="container" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-      Arrastra y suelta archivos aquí
-    </div>
+    <div id="container" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">Arrastra y suelta archivos aquí</div>
     <hr />
     <h2>Agregar archivo</h2>
     <input type="file" id="fileSelect" multiple />
@@ -25,6 +23,13 @@
         const picturesFolder = await opfsRoot.getDirectoryHandle(directoryName, {
           create: true,
         });
+
+        // Define la función AlphaFoldXploR_read si aún no está definida
+        window.AlphaFoldXploR_read = async (zfile) => {
+          // Implementa la lógica necesaria para procesar el archivo aquí
+          // Puedes adaptar la función según tu lógica y necesidades
+          console.log('Procesando archivo...', zfile);
+        };
 
         const removeFile = async (fileName, folder) => {
           try {
@@ -55,23 +60,25 @@
         };
 
         const renderFiles = async (folder) => {
-          // Limpiar el contenedor antes de mostrar los archivos
-          $mainContainer.innerHTML = '';
+          while ($mainContainer.firstChild) {
+            $mainContainer.removeChild($mainContainer.firstChild);
+          }
 
           for await (let [name, handle] of folder) {
-            const container = document.createElement('div');
-            const anchorFileName = document.createElement('a');
-            anchorFileName.textContent = name;
-            anchorFileName.href = 'javascript:void(0)';
-            anchorFileName.classList.add('file');
-
-            const anchorRemove = document.createElement('a');
-            anchorRemove.textContent = 'Eliminar';
-            anchorRemove.href = 'javascript:void(0)';
-            anchorRemove.classList.add('remove');
+            const container = Object.assign(document.createElement('div'));
+            const anchorFileName = Object.assign(document.createElement('a'), {
+              textContent: name,
+              href: 'javascript:void(0)',
+              classList: ['file'],
+            });
+            const anchorRemove = Object.assign(document.createElement('a'), {
+              textContent: 'Eliminar',
+              href: 'javascript:void(0)',
+              classList: ['remove'],
+            });
 
             anchorFileName.addEventListener('click', () => {
-              downloadFile(name, folder);
+              console.log('Descargar archivo', name);
             });
 
             anchorRemove.addEventListener('click', async () => {
@@ -81,7 +88,7 @@
 
             container.appendChild(anchorFileName);
             container.appendChild(anchorRemove);
-            $mainContainer.appendChild(container);
+            $mainContainer.append(container);
           }
         };
 
@@ -91,8 +98,6 @@
             await storeFile(file, picturesFolder);
           }
           $fileSelect.value = '';
-
-          // Mostrar archivos automáticamente después de cargarlos
           renderFiles(picturesFolder);
         });
 
@@ -100,19 +105,33 @@
           // Obtén la lista de archivos almacenados en la carpeta pictures
           const filesList = await picturesFolder.keys();
 
-          // Llama a tu función AlphaFoldXploR_read para procesar cada archivo
-          for (const fileName of filesList) {
-            const fileHandle = await picturesFolder.getFileHandle(fileName);
-            const file = await fileHandle.getFile();
-            const fileBuffer = await file.arrayBuffer();
-
-            // Llama a tu función con el contenido del archivo
-            await AlphaFoldXploR_read(fileBuffer);
-          }
+          // Llama a la función asincrónica processFiles para manejar la lógica de procesamiento
+          await processFiles(Array.from(filesList), picturesFolder);
 
           // Puedes agregar más lógica aquí después de procesar todos los archivos
           console.log('Aplicar función completada...');
         });
+
+        async function processFiles(filesList, folder) {
+          // Crea las carpetas de salida en la web
+          const outputFolderJSON = await folder.getDirectoryHandle('archivos_json', { create: true });
+          const outputFolderPDB = await folder.getDirectoryHandle('archivos_pdb', { create: true });
+
+          // Lógica de procesamiento de archivos aquí
+          for (const fileName of filesList) {
+            const fileHandle = await folder.getFileHandle(fileName);
+            const file = await fileHandle.getFile();
+            const fileBuffer = await file.arrayBuffer();
+            await window.AlphaFoldXploR_read(fileBuffer);
+
+            // Coloca el archivo en la carpeta de salida correspondiente según la extensión
+            if (fileName.endsWith('.json')) {
+              await storeFile(file, outputFolderJSON);
+            } else if (fileName.endsWith('.pdb')) {
+              await storeFile(file, outputFolderPDB);
+            }
+          }
+        }
 
         function dragOverHandler(event) {
           event.preventDefault();
