@@ -104,9 +104,9 @@
         $applyFunctionButton.addEventListener('click', async () => {
           // Obtén la lista de archivos almacenados en la carpeta pictures
           const filesList = await picturesFolder.keys();
-  
+
           // Llama a la función asincrónica processFiles para manejar la lógica de procesamiento
-          processFiles(Array.from(filesList), picturesFolder);
+          await processFiles(Array.from(filesList), picturesFolder);
         });
 
         async function processFiles(filesList, folder) {
@@ -179,4 +179,5 @@
     </style>
   </body>
 </html>
+
 
