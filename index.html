@@ -101,14 +101,16 @@
           renderFiles(picturesFolder);
         });
 
-        $applyFunctionButton.addEventListener('click', async () => {
-          // Obtén la lista de archivos almacenados en la carpeta pictures
-          const filesList = await picturesFolder.keys();
-
-          // Llama a la función asincrónica processFiles para manejar la lógica de procesamiento
-          await processFiles(Array.from(filesList), picturesFolder);
-        });
-
+      $applyFunctionButton.addEventListener('click', async () => {
+        // Obtén la lista de archivos almacenados en la carpeta pictures
+        const filesList = [];
+        for await (const [name, _] of picturesFolder) {
+          filesList.push(name);
+        }
+      
+        // Llama a la función asincrónica processFiles para manejar la lógica de procesamiento
+        await processFiles(filesList, picturesFolder);
+      });
         async function processFiles(filesList, folder) {
           // Crea las carpetas de salida en la web
           const outputFolderJSON = await folder.getDirectoryHandle('archivos_json', { create: true });
