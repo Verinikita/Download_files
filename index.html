@@ -107,7 +107,7 @@
           const filesList = await picturesFolder.keys();
 
           // Llama a la función asincrónica processFiles para manejar la lógica de procesamiento
-          await processFiles(filesList, picturesFolder);
+          await processFiles(Array.from(filesList), picturesFolder);
 
           // Puedes agregar más lógica aquí después de procesar todos los archivos
           console.log('Aplicar función completada...');
