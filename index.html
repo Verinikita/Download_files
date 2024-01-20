@@ -14,7 +14,7 @@
     <button id="applyFunction">Aplicar función</button>
 
     <script>
-      (async () => {
+      document.addEventListener('DOMContentLoaded', async () => {
         const $mainContainer = document.querySelector('#container');
         const $fileSelect = document.querySelector('#fileSelect');
         const $applyFunctionButton = document.querySelector('#applyFunction');
@@ -24,7 +24,6 @@
           create: true,
         });
 
-        // Define la función AlphaFoldXploR_read si aún no está definida
         window.AlphaFoldXploR_read = async (zfile) => {
           // Implementa la lógica necesaria para procesar el archivo aquí
           // Puedes adaptar la función según tu lógica y necesidades
@@ -78,6 +77,8 @@
             });
 
             anchorFileName.addEventListener('click', () => {
+              // downloadFile(name, folder);
+              // La función downloadFile no está definida, así que la eliminamos
               console.log('Descargar archivo', name);
             });
 
@@ -106,31 +107,20 @@
           const filesList = await picturesFolder.keys();
 
           // Llama a la función asincrónica processFiles para manejar la lógica de procesamiento
-          await processFiles(Array.from(filesList), picturesFolder);
+          await processFiles(filesList, picturesFolder);
+
+          // Puedes agregar más lógica aquí después de procesar todos los archivos
+          console.log('Aplicar función completada...');
         });
 
         async function processFiles(filesList, folder) {
-          // Crea las carpetas de salida en la web
-          const outputFolderJSON = await folder.getDirectoryHandle('archivos_json', { create: true });
-          const outputFolderPDB = await folder.getDirectoryHandle('archivos_pdb', { create: true });
-
           // Lógica de procesamiento de archivos aquí
           for (const fileName of filesList) {
             const fileHandle = await folder.getFileHandle(fileName);
             const file = await fileHandle.getFile();
             const fileBuffer = await file.arrayBuffer();
             await window.AlphaFoldXploR_read(fileBuffer);
-
-            // Coloca el archivo en la carpeta de salida correspondiente según la extensión
-            if (fileName.endsWith('.json')) {
-              await storeFile(file, outputFolderJSON);
-            } else if (fileName.endsWith('.pdb')) {
-              await storeFile(file, outputFolderPDB);
-            }
           }
-
-          // Puedes agregar más lógica aquí después de procesar todos los archivos
-          console.log('Aplicar función completada...');
         }
 
         function dragOverHandler(event) {
@@ -138,7 +128,7 @@
           $mainContainer.classList.add('dragover');
         }
 
-        function dropHandler(event) {
+        async function dropHandler(event) {
           event.preventDefault();
           $mainContainer.classList.remove('dragover');
           const files = event.dataTransfer.files;
@@ -147,7 +137,7 @@
           }
           renderFiles(picturesFolder);
         }
-      })();
+      });
     </script>
     <style>
       #container {
@@ -179,5 +169,3 @@
     </style>
   </body>
 </html>
-
-
