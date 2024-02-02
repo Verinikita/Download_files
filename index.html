@@ -28,6 +28,57 @@
           create: true,
         });
 
+
+
+
+        const $individualContainer = document.querySelector('#individualContainer');
+
+        $individualContainer.addEventListener('drop', async (event) => {
+        event.preventDefault();
+        $individualContainer.classList.remove('dragover');
+        const files = event.dataTransfer.files;
+        for (const file of files) {
+          await processFile(file, picturesFolder);
+        }
+        // Renderiza los archivos después de procesar
+        renderFiles(picturesFolder);
+      });
+      
+      function dragOverHandler(event) {
+        event.preventDefault();
+        $mainContainer.classList.add('dragover');
+        $individualContainer.classList.add('dragover'); // Agrega la clase de arrastre al nuevo contenedor
+      }
+      
+      async function dropIndividualHandler(event) {
+        event.preventDefault();
+        $individualContainer.classList.remove('dragover');
+        const files = event.dataTransfer.files;
+        for (const file of files) {
+          await processFile(file, picturesFolder);
+        }
+        // Renderiza los archivos después de procesar
+        renderFiles(picturesFolder);
+      }
+      
+      async function processFile(file, folder) {
+        // Lógica de procesamiento de archivos aquí
+        const fileName = file.name;
+        const fileHandle = await folder.getFileHandle(fileName, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(await file.arrayBuffer());
+        await writable.close();
+        await window.AlphaFoldXploR_read(fileBuffer);
+      }
+
+
+
+        
+
+
+
+        
+
         window.AlphaFoldXploR_read = async (zfile) => {
           // Implementa la lógica necesaria para procesar el archivo aquí
           // Puedes adaptar la función según tu lógica y necesidades
