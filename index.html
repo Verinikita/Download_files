@@ -1,75 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OPFS with JavaScript</title>
-  </head>
+</head>
 
-  <body>
+<body>
     <div id="container" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">Arrastra y suelta archivos aquí</div>
     <hr />
     <h2>Agregar archivo</h2>
     <input type="file" id="fileSelect" multiple />
     <button id="applyFunction">Aplicar función</button>
     <!-- Nuevo contenedor para arrastrar un archivo individualmente -->
-    <div id="individualContainer" ondrop="dropIndividualHandler(event);" ondragover="dragOverHandler(event);">
-     Arrastra un archivo aquí
+    <div id="individualContainer" ondrop="dropIndividualHandler(event);" ondragover="dragOverIndividualHandler(event);">
+        Arrastra un archivo aquí
     </div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', async () => {
-        const $mainContainer = document.querySelector('#container');
-        const $fileSelect = document.querySelector('#fileSelect');
-        const $applyFunctionButton = document.querySelector('#applyFunction');
-        const directoryName = 'pictures';
-        const opfsRoot = await navigator.storage.getDirectory();
-        const picturesFolder = await opfsRoot.getDirectoryHandle(directoryName, {
-          create: true,
-        });
+        document.addEventListener('DOMContentLoaded', async () => {
+            const $mainContainer = document.querySelector('#container');
+            const $fileSelect = document.querySelector('#fileSelect');
+            const $applyFunctionButton = document.querySelector('#applyFunction');
+            const directoryName = 'pictures';
+            const opfsRoot = await navigator.storage.getDirectory();
+            const picturesFolder = await opfsRoot.getDirectoryHandle(directoryName, {
+                create: true,
+            });
 
+            const $individualContainer = document.querySelector('#individualContainer');
 
+            $individualContainer.addEventListener('drop', async (event) => {
+                event.preventDefault();
+                $individualContainer.classList.remove('dragover');
+                const files = event.dataTransfer.files;
+                for (const file of files) {
+                    await processFile(file, picturesFolder);
+                }
+                // Renderiza los archivos después de procesar
+                renderFiles(picturesFolder);
+            });
 
+            function dragOverHandler(event) {
+                event.preventDefault();
+                $mainContainer.classList.add('dragover');
+            }
 
-        const $individualContainer = document.querySelector('#individualContainer');
+            function dragOverIndividualHandler(event) {
+                event.preventDefault();
+                $individualContainer.classList.add('dragover');
+            }
 
-        $individualContainer.addEventListener('drop', async (event) => {
-        event.preventDefault();
-        $individualContainer.classList.remove('dragover');
-        const files = event.dataTransfer.files;
-        for (const file of files) {
-          await processFile(file, picturesFolder);
-        }
-        // Renderiza los archivos después de procesar
-        renderFiles(picturesFolder);
-      });
-      
-      function dragOverHandler(event) {
-        event.preventDefault();
-        $mainContainer.classList.add('dragover');
-        $individualContainer.classList.add('dragover'); // Agrega la clase de arrastre al nuevo contenedor
-      }
-      
-      async function dropIndividualHandler(event) {
-        event.preventDefault();
-        $individualContainer.classList.remove('dragover');
-        const files = event.dataTransfer.files;
-        for (const file of files) {
-          await processFile(file, picturesFolder);
-        }
-        // Renderiza los archivos después de procesar
-        renderFiles(picturesFolder);
-      }
-      
-      async function processFile(file, folder) {
-        // Lógica de procesamiento de archivos aquí
-        const fileName = file.name;
-        const fileHandle = await folder.getFileHandle(fileName, { create: true });
-        const writable = await fileHandle.createWritable();
-        await writable.write(await file.arrayBuffer());
-        await writable.close();
-        await window.AlphaFoldXploR_read(fileBuffer);
-      }
+            async function dropHandler(event) {
+                event.preventDefault();
+                $mainContainer.classList.remove('dragover');
+                const files = event.dataTransfer.files;
+                for (const file of files) {
+                    await storeFile(file, picturesFolder);
+                }
+                renderFiles(picturesFolder);
+            }
+
+            async function processFile(file, folder) {
+                // Lógica de procesamiento de archivos aquí
+                const fileName = file.name;
+                const fileHandle = await folder.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(await file.arrayBuffer());
+                await writable.close();
+                await window.AlphaFoldXploR_read(fileHandle); // Corregido: utilizar el fileHandle en lugar de fileBuffer
+            }
 
 
 
@@ -202,32 +202,44 @@
       });
     </script>
     <style>
-      #container {
-        border: 2px dashed #ccc;
-        padding: 20px;
-        text-align: center;
-        margin-bottom: 20px;
-        cursor: pointer;
-      }
+        #container {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
 
-      #container.dragover {
-        background-color: #f0f0f0;
-      }
+        #container.dragover {
+            background-color: #f0f0f0;
+        }
 
-      a {
-        text-decoration: none;
-      }
+        #individualContainer {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
 
-      a.file {
-        color: #0ea5e9;
-        font-size: 1.2rem;
-      }
+        #individualContainer.dragover {
+            background-color: #f0f0f0;
+        }
 
-      a.remove {
-        color: #dc2626;
-        font-size: 0.8rem;
-        margin-left: 0.4rem;
-      }
+        a {
+            text-decoration: none;
+        }
+
+        a.file {
+            color: #0ea5e9;
+            font-size: 1.2rem;
+        }
+
+        a.remove {
+            color: #dc2626;
+            font-size: 0.8rem;
+            margin-left: 0.4rem;
+        }
     </style>
-  </body>
+</body>
 </html>
