@@ -19,6 +19,9 @@
     </div>
 
     <script>
+        // Definir la variable $mainContainer como global
+        const $mainContainer = document.querySelector('#container');
+
         // Definir la función dragOverHandler en el contexto global
         window.dragOverHandler = function (event) {
             event.preventDefault();
@@ -26,7 +29,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const $mainContainer = document.querySelector('#container');
             const $fileSelect = document.querySelector('#fileSelect');
             const $applyFunctionButton = document.querySelector('#applyFunction');
             const directoryName = 'pictures';
