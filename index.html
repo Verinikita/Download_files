@@ -12,6 +12,10 @@
     <h2>Agregar archivo</h2>
     <input type="file" id="fileSelect" multiple />
     <button id="applyFunction">Aplicar función</button>
+    <!-- Nuevo contenedor para arrastrar un archivo individualmente -->
+    <div id="individualContainer" ondrop="dropIndividualHandler(event);" ondragover="dragOverHandler(event);">
+     Arrastra un archivo aquí
+    </div>
 
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
