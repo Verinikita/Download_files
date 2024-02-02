@@ -19,6 +19,12 @@
     </div>
 
     <script>
+        // Definir la función dragOverHandler en el contexto global
+        window.dragOverHandler = function (event) {
+            event.preventDefault();
+            $mainContainer.classList.add('dragover');
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const $mainContainer = document.querySelector('#container');
             const $fileSelect = document.querySelector('#fileSelect');
@@ -176,6 +182,7 @@
         });
     </script>
     <style>
+        /* Estilo del contenedor principal */
         #container {
             border: 2px dashed #ccc;
             padding: 20px;
@@ -188,6 +195,7 @@
             background-color: #f0f0f0;
         }
 
+        /* Estilo del contenedor individual */
         #individualContainer {
             border: 2px dashed #ccc;
             padding: 20px;
