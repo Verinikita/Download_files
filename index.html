@@ -38,6 +38,22 @@
           }
         };
 
+
+
+
+        const downloadFile = async (fileName, folder) => {
+          try {
+            await folder.downloadEntry(fileName);
+          } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+          }
+        };
+
+
+
+
+        
+
         const storeFile = async (file, folder) => {
           return new Promise((resolve, reject) => {
             const reader = new FileReader();
