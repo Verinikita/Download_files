@@ -40,18 +40,6 @@
 
 
 
-
-        const downloadFile = async (fileName, folder) => {
-          try {
-            await folder.downloadEntry(fileName);
-          } catch (error) {
-            console.error('Error al descargar el archivo:', error);
-          }
-        };
-
-
-
-
         
 
         const storeFile = async (file, folder) => {
@@ -93,7 +81,7 @@
             });
 
             anchorFileName.addEventListener('click', () => {
-              await downloadFile(name, folder);
+              //await downloadFile(name, folder);
               // La función downloadFile no está definida, así que la eliminamos
               console.log('Descargar archivo', name);
             });
