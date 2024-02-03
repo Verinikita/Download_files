@@ -44,6 +44,7 @@
                 create: true,
             });
 
+            const $mainContainer = document.querySelector('#container');
             const $individualContainer = document.querySelector('#individualContainer');
 
             $individualContainer.addEventListener('drop', async (event) => {
@@ -188,6 +189,14 @@
                     await window.AlphaFoldXploR_read(fileBuffer);
                 }
             }
+        });
+           $mainContainer.addEventListener('dragleave', function () {
+                $mainContainer.classList.remove('dragover');
+            });
+        
+            $individualContainer.addEventListener('dragleave', function () {
+                $individualContainer.classList.remove('dragover');
+            });
         });
     </script>
     <style>
