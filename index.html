@@ -88,17 +88,20 @@
                 const fileBuffer = await file.arrayBuffer();  // Obtener el buffer del archivo
                 await window.AlphaFoldXploR_read(fileBuffer);
             }
-            window.AlphaFoldXploR_read = async (zfile) => {
-                // Implementa la lógica necesaria para procesar el archivo aquí
-                // Puedes adaptar la función según tu lógica y necesidades
-                console.log('Procesando archivo...', zfile);
-            };
-
-            const removeFile = async (fileName, folder) => {
-                try {
-                    await folder.removeEntry(fileName);
-                } catch (error) {
-                    console.error('Error al eliminar el archivo:', error);
+            window.AlphaFoldXploR_read = async (file) => {
+                // Lógica necesaria para procesar el archivo aquí
+                const fileName = file.name;
+            
+                if (fileName.endsWith(".json")) {
+                    const content = await file.text();
+                    // Procesa el contenido del archivo JSON según tus necesidades
+                    console.log(`Contenido de ${fileName} (JSON): ${content}`);
+                } else if (fileName.endsWith(".pdb")) {
+                    const content = await file.text();
+                    // Procesa el contenido del archivo PDB según tus necesidades
+                    console.log(`Contenido de ${fileName} (PDB): ${content}`);
+                } else {
+                    console.log(`Tipo de archivo no compatible: ${fileName}`);
                 }
             };
 
@@ -180,14 +183,16 @@
                 console.log('Aplicar función completada...');
             });
 
-            async function processFiles(filesList, folder) {
-                // Lógica de procesamiento de archivos aquí
-                for (const fileName of filesList) {
-                    const fileHandle = await folder.getFileHandle(fileName);
-                    const file = await fileHandle.getFile();
-                    const fileBuffer = await file.arrayBuffer();
-                    await window.AlphaFoldXploR_read(fileBuffer);
-                }
+            async function processFile(file, folder) {
+                const fileName = file.name;
+                const fileHandle = await folder.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(await file.arrayBuffer());
+                await writable.close();
+            
+                // Llama a AlphaFoldXploR_read para procesar el archivo
+                await window.AlphaFoldXploR_read(fileHandle);
+            }
             }
         });
            $mainContainer.addEventListener('dragleave', function () {
