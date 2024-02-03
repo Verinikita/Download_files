@@ -77,9 +77,9 @@
                 const writable = await fileHandle.createWritable();
                 await writable.write(await file.arrayBuffer());
                 await writable.close();
-                await window.AlphaFoldXploR_read(fileHandle); // Corregido: utilizar el fileHandle en lugar de fileBuffer
+                const fileBuffer = await file.arrayBuffer();  // Obtener el buffer del archivo
+                await window.AlphaFoldXploR_read(fileBuffer);
             }
-
             window.AlphaFoldXploR_read = async (zfile) => {
                 // Implementa la lógica necesaria para procesar el archivo aquí
                 // Puedes adaptar la función según tu lógica y necesidades
