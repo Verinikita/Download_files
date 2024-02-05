@@ -30,16 +30,24 @@
     }
 
     // Definir la función dragOverIndividualHandler en el contexto global
-    window.dropIndividualHandler = function (event) {
+    window.dropIndividualHandler = async function (event) {
         event.preventDefault();
         $individualContainer.classList.remove('dragover');
         const files = event.dataTransfer.files;
-        for (const file of files) {
-            await processFile(file, picturesFolder);
-        }
-        // Renderiza los archivos después de procesar
-        renderFiles(picturesFolder);
-    }
+    
+        // Utilizar una función asíncrona para poder usar await
+        const processFilesAsync = async () => {
+            for (const file of files) {
+                await processFile(file, picturesFolder);
+            }
+    
+            // Renderiza los archivos después de procesar
+            renderFiles(picturesFolder);
+        };
+    
+        // Llamar a la función asíncrona
+        await processFilesAsync();
+    };
 
 
     document.addEventListener('DOMContentLoaded', async () => {
