@@ -133,40 +133,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             };
 
-            const renderFiles = async (folder) => {
-                while ($mainContainer.firstChild) {
-                    $mainContainer.removeChild($mainContainer.firstChild);
-                }
-
-                for await (let [name, handle] of folder) {
-                    const container = Object.assign(document.createElement('div'));
-                    const anchorFileName = Object.assign(document.createElement('a'), {
-                        textContent: name,
-                        href: 'javascript:void(0)',
-                        classList: ['file'],
-                    });
-                    const anchorRemove = Object.assign(document.createElement('a'), {
-                        textContent: 'Eliminar',
-                        href: 'javascript:void(0)',
-                        classList: ['remove'],
-                    });
-
-                    anchorFileName.addEventListener('click', () => {
-                        //await downloadFile(name, folder);
-                        // La función downloadFile no está definida, así que la eliminamos
-                        console.log('Descargar archivo', name);
-                    });
-
-                    anchorRemove.addEventListener('click', async () => {
-                        await removeFile(name, folder);
-                        await renderFiles(folder);
-                    });
-
-                    container.appendChild(anchorFileName);
-                    container.appendChild(anchorRemove);
-                    $mainContainer.append(container);
-                }
-            };
+        const renderFiles = async (folder) => {
+            while ($mainContainer.firstChild) {
+                $mainContainer.removeChild($mainContainer.firstChild);
+            }
+        
+            // Use for-await-of to iterate over the asynchronous iterator
+            for await (let [name, handle] of folder.entries()) {
+                const container = document.createElement('div');
+                const anchorFileName = document.createElement('a');
+                const anchorRemove = document.createElement('a');
+        
+                anchorFileName.textContent = name;
+                anchorFileName.href = 'javascript:void(0)';
+                anchorFileName.classList.add('file');
+        
+                anchorRemove.textContent = 'Eliminar';
+                anchorRemove.href = 'javascript:void(0)';
+                anchorRemove.classList.add('remove');
+        
+                anchorFileName.addEventListener('click', () => {
+                    console.log('Descargar archivo', name);
+                });
+        
+                anchorRemove.addEventListener('click', async () => {
+                    await removeFile(name, folder);
+                    await renderFiles(folder);
+                });
+        
+                container.appendChild(anchorFileName);
+                container.appendChild(anchorRemove);
+                $mainContainer.appendChild(container);
+            }
+        };
 
             $fileSelect.addEventListener('change', async () => {
                 const files = $fileSelect.files;
